@@ -1,8 +1,8 @@
 // Mobile API utility functions
 // This ensures all mobile API calls use absolute URLs to connect to the backend server
 
-// Use relative API base so Vercel rewrites proxy to Railway (see vercel.json)
-const MOBILE_API_BASE_URL = '';
+// Use the correct Railway backend URL
+const MOBILE_API_BASE_URL = 'https://project-pro-server.up.railway.app';
 
 
 // Global fetch interceptor to catch ALL API calls
@@ -13,16 +13,18 @@ window.fetch = function(...args) {
 
 export const mobileApiCall = async (method: string, endpoint: string, data?: any) => {
   // Handle different endpoint types
+  // Normalize to ensure a leading slash
+  const normalized = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
   let mobileEndpoint: string;
-  if (endpoint.startsWith('/api/mobile')) {
+  if (normalized.startsWith('/api/mobile')) {
     // Already a mobile endpoint
-    mobileEndpoint = endpoint;
-  } else if (endpoint.startsWith('/api/reports')) {
+    mobileEndpoint = normalized;
+  } else if (normalized.startsWith('/api/reports')) {
     // Reports endpoints go directly to /api/reports
-    mobileEndpoint = endpoint;
+    mobileEndpoint = normalized;
   } else {
     // Other endpoints get /api/mobile prefix
-    mobileEndpoint = `/api/mobile${endpoint}`;
+    mobileEndpoint = `/api/mobile${normalized}`;
   }
   const fullUrl = `${MOBILE_API_BASE_URL}${mobileEndpoint}`;
   
